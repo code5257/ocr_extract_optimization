@@ -1,0 +1,40 @@
+name: "rec_model"
+platform: "tensorrt_plan"
+max_batch_size: 64
+
+input [
+  {
+    name: "x"
+    data_type: TYPE_FP32
+    dims: [3, 48, -1]  # 宽度动态
+  }
+]
+
+output [
+  {
+    name: "softmax_0.tmp_0"
+    data_type: TYPE_FP32
+    dims: [-1, -1]  # [序列长度, 字典大小]
+  }
+]
+
+instance_group [
+  {
+    count: 2
+    kind: KIND_GPU
+    gpus: [0]
+  }
+]
+
+dynamic_batching {
+  preferred_batch_size: [8, 16, 32, 64]
+  max_queue_delay_microseconds: 30000
+}
+
+# Rec 模型是吞吐大户，多开实例
+optimization {
+  cuda {
+    graphs: true
+    busy_wait_events: true
+  }
+}

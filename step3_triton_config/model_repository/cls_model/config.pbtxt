@@ -1,0 +1,32 @@
+name: "cls_model"
+platform: "tensorrt_plan"
+max_batch_size: 64
+
+input [
+  {
+    name: "x"
+    data_type: TYPE_FP32
+    dims: [3, 48, 192]
+  }
+]
+
+output [
+  {
+    name: "softmax_0.tmp_0"
+    data_type: TYPE_FP32
+    dims: [2]  # [0度概率, 180度概率]
+  }
+]
+
+instance_group [
+  {
+    count: 1
+    kind: KIND_GPU
+    gpus: [0]
+  }
+]
+
+dynamic_batching {
+  preferred_batch_size: [8, 16, 32, 64]
+  max_queue_delay_microseconds: 30000
+}

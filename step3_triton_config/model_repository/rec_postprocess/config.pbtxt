@@ -1,0 +1,33 @@
+name: "rec_postprocess"
+backend: "python"
+max_batch_size: 64
+
+input [
+  {
+    name: "REC_OUTPUT"
+    data_type: TYPE_FP32
+    dims: [-1, -1]  # [序列长度, 字典大小]
+  }
+]
+
+output [
+  {
+    name: "TEXT"
+    data_type: TYPE_STRING
+    dims: [1]  # 识别出的文字
+  },
+  {
+    name: "CONFIDENCE"
+    data_type: TYPE_FP32
+    dims: [1]  # 置信度
+  }
+]
+
+instance_group [
+  { count: 2, kind: KIND_CPU }
+]
+
+dynamic_batching {
+  preferred_batch_size: [8, 16, 32, 64]
+  max_queue_delay_microseconds: 30000
+}

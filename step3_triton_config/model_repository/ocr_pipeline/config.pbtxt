@@ -1,0 +1,13 @@
+name: "ocr_pipeline"
+platform: "ensemble"
+max_batch_size: 0
+
+# 整体 OCR 流水线（简化版：跳过 Ensemble 直接用 Python Backend 编排）
+# 
+# 注意：PP-OCR 的完整流程（det → crop → cls → rec）涉及动态数量的文本框，
+# Triton 原生 Ensemble 不太好处理这种"一帧检测出 N 个框"的动态场景。
+#
+# 推荐方案：使用一个 Python Backend 做 "OCR Orchestrator"，
+# 内部通过 BLS (Business Logic Scripting) 调用 det_model 和 rec_model。
+#
+# 这个配置文件仅作为参考，实际使用 ocr_orchestrator。

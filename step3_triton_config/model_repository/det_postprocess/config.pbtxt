@@ -1,0 +1,38 @@
+name: "det_postprocess"
+backend: "python"
+max_batch_size: 16
+
+input [
+  {
+    name: "DET_OUTPUT"
+    data_type: TYPE_FP32
+    dims: [1, -1, -1]  # 检测概率图
+  },
+  {
+    name: "ORIGINAL_SHAPE"
+    data_type: TYPE_INT32
+    dims: [2]  # [原始H, 原始W]
+  }
+]
+
+output [
+  {
+    name: "BOXES"
+    data_type: TYPE_FP32
+    dims: [-1, 4, 2]  # N个四边形框，每个4个点(x,y)
+  },
+  {
+    name: "NUM_BOXES"
+    data_type: TYPE_INT32
+    dims: [1]  # 检测到的框数量
+  }
+]
+
+instance_group [
+  { count: 2, kind: KIND_CPU }
+]
+
+dynamic_batching {
+  preferred_batch_size: [4, 8, 16]
+  max_queue_delay_microseconds: 50000
+}

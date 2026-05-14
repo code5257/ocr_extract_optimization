@@ -1,0 +1,40 @@
+name: "det_model"
+platform: "tensorrt_plan"
+max_batch_size: 16
+
+input [
+  {
+    name: "x"
+    data_type: TYPE_FP32
+    dims: [3, -1, -1]  # 动态 H x W
+  }
+]
+
+output [
+  {
+    name: "sigmoid_0.tmp_0"
+    data_type: TYPE_FP32
+    dims: [1, -1, -1]  # 检测概率图
+  }
+]
+
+instance_group [
+  {
+    count: 2
+    kind: KIND_GPU
+    gpus: [0]
+  }
+]
+
+dynamic_batching {
+  preferred_batch_size: [4, 8, 16]
+  max_queue_delay_microseconds: 50000
+}
+
+# 模型优化参数
+optimization {
+  cuda {
+    graphs: true
+    busy_wait_events: true
+  }
+}
